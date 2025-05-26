@@ -52,9 +52,8 @@ async def add_user(tg_id: int, name: str):
                 await db.flush()
                 await db.refresh(new_user)
     except Exception as e:
-        # Логируем ошибку и сообщаем о проблеме
         print(f"Error during add_user: {e}")
-        raise  # Перебрасываем ошибку для дальнейшей обработки
+        raise
 
 async def add_habit(tg_id: int, habit_name: str, target_count: int):
     async with AsyncSessionLocal() as session:
@@ -120,7 +119,6 @@ async def make_mark(habit_id: int):
         if habit_progress:
             habit_progress.current_count += 1
 
-            # Проверяем, достигли ли мы целевого значения
             habit = await session.execute(select(Habit).where(Habit.id == habit_id))
             habit = habit.scalar_one_or_none()
             
@@ -163,8 +161,8 @@ async def get_progress(habit_id):
         result = await session.execute(
             select(Habit_progress)
             .where(Habit_progress.habit_id == habit_id)
-            .order_by(desc(Habit_progress.date))  # сортируем по дате создания
-            .limit(1)  # берём только одну запись
+            .order_by(desc(Habit_progress.date))
+            .limit(1)
         )
         habit_progress = result.scalar_one_or_none()
         if habit_progress:
